@@ -16,7 +16,6 @@ CREATE TABLE IF NOT EXISTS roles (
     nombre_rol VARCHAR(50) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Insertar roles por defecto
 INSERT INTO roles (nombre_rol) VALUES 
 ('Administrador'), 
 ('Técnico'), 
@@ -28,19 +27,18 @@ INSERT INTO roles (nombre_rol) VALUES
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL, -- Hash de la contraseña (ej. SHA-256)
+    nombre_usuario VARCHAR(50) NOT NULL UNIQUE,
+    clave_hash VARCHAR(255) NOT NULL, 
     id_rol INT NOT NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_rol) REFERENCES roles(id_rol) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Insertar usuario administrador por defecto (Pass genérica para pruebas: 1234)
-INSERT INTO usuarios (username, password_hash, id_rol) VALUES 
+INSERT INTO usuarios (nombre_usuario, clave_hash, id_rol) VALUES 
 ('admin_teatro', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 1);
 
 -- --------------------------------------------------------
--- 3. TABLA DE EQUIPOS (Actualizada para el Modo Cine)
+-- 3. TABLA DE EQUIPOS
 -- Almacena el inventario del hardware crítico controlado
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS equipos (
@@ -50,7 +48,6 @@ CREATE TABLE IF NOT EXISTS equipos (
     protocolo VARCHAR(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Insertamos los equipos reales del proyecto para que Lua los encuentre
 INSERT INTO equipos (nombre_equipo, ip_control, protocolo) VALUES 
 ('Matriz Evertz Magnum', '192.168.10.10', 'TCP'),
 ('Procesador Meyer Galileo', '192.168.10.20', 'SNMP'),
@@ -74,13 +71,13 @@ CREATE TABLE IF NOT EXISTS reservas (
 
 -- --------------------------------------------------------
 -- 5. TABLA DE LOGS_EVENTOS
--- Registro de auditoría y fallos de hardware (SNMP/TCP/UDP)
+-- Registro de auditoría y fallos de hardware
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS logs_eventos (
     id_log INT AUTO_INCREMENT PRIMARY KEY,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
     id_usuario INT NULL, 
-    id_equipo INT NULL, -- Añadido para que coincida con la memoria
+    id_equipo INT NULL, 
     accion_detalle VARCHAR(255) NOT NULL, 
     nivel_alerta INT NOT NULL CHECK (nivel_alerta IN (1, 2, 3)), 
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
