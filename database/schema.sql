@@ -62,9 +62,8 @@ INSERT INTO equipos (nombre_equipo, ip_control, protocolo) VALUES
 CREATE TABLE IF NOT EXISTS reservas (
     id_reserva INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
-    fecha DATE NOT NULL,
-    hora_inicio TIME NOT NULL,
-    hora_fin TIME NOT NULL,
+    inicio_datetime DATETIME NOT NULL,
+    fin_datetime DATETIME NOT NULL,
     estado ENUM('Activa', 'Cancelada', 'Finalizada') DEFAULT 'Activa',
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -76,10 +75,15 @@ CREATE TABLE IF NOT EXISTS reservas (
 CREATE TABLE IF NOT EXISTS logs_eventos (
     id_log INT AUTO_INCREMENT PRIMARY KEY,
     fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
     id_usuario INT NULL, 
     id_equipo INT NULL, 
+    
+    tipo_evento VARCHAR(50) NOT NULL, 
+    resultado VARCHAR(20) NOT NULL,   
     accion_detalle VARCHAR(255) NOT NULL, 
     nivel_alerta INT NOT NULL CHECK (nivel_alerta IN (1, 2, 3)), 
+    
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
     FOREIGN KEY (id_equipo) REFERENCES equipos(id_equipo) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
