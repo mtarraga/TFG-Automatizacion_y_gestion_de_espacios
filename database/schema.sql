@@ -1,10 +1,14 @@
 -- ==============================================================================
 -- Proyecto TFG: Sistema centralizado de automatización y gestión de espacios
 -- Autor: Miguel Tárraga Martínez
--- Archivo: schema.sql (Base de datos principal)
+-- Archivo: schema.sql (Base de datos principal - Versión con 6 usuarios)
 -- ==============================================================================
 
-CREATE DATABASE IF NOT EXISTS teatro_control_db;
+-- Borrado de base de datos si existe
+DROP DATABASE IF EXISTS teatro_control_db;
+
+-- Crea la nueva base de datos
+CREATE DATABASE teatro_control_db;
 USE teatro_control_db;
 
 -- --------------------------------------------------------
@@ -23,7 +27,7 @@ INSERT INTO roles (nombre_rol) VALUES
 
 -- --------------------------------------------------------
 -- 2. TABLA DE USUARIOS
--- Almacena las credenciales del personal del buque H6354
+-- Almacena las credenciales encriptadas en SHA-256
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
@@ -34,8 +38,14 @@ CREATE TABLE IF NOT EXISTS usuarios (
     FOREIGN KEY (id_rol) REFERENCES roles(id_rol) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Insertamos 6 usuarios de prueba usando la función de cifrado SHA2 de MySQL
 INSERT INTO usuarios (nombre_usuario, clave_hash, id_rol) VALUES 
-('admin_teatro', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 1);
+('admin_principal', SHA2('1234', 256), 1),     -- PIN: 1234 (Administrador)
+('admin_sistemas', SHA2('9999', 256), 1),      -- PIN: 9999 (Administrador)
+('tecnico_av', SHA2('5678', 256), 2),          -- PIN: 5678 (Técnico)
+('tecnico_luces', SHA2('4321', 256), 2),       -- PIN: 4321 (Técnico)
+('operario_mañana', SHA2('1111', 256), 3),     -- PIN: 1111 (Operario)
+('operario_tarde', SHA2('2222', 256), 3);      -- PIN: 2222 (Operario)
 
 -- --------------------------------------------------------
 -- 3. TABLA DE EQUIPOS
