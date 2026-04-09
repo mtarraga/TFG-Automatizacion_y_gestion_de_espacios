@@ -15,8 +15,8 @@ if ($conn->connect_error) {
 // Si el usuario es 0 o no llega, lo convertimos a NULL para que MySQL no se queje
 $id_usuario = (isset($_GET['id_usuario']) && $_GET['id_usuario'] != '0') ? (int)$_GET['id_usuario'] : null;
 
-// El login es del sistema, no de un equipo concreto, mandamos NULL
-$id_equipo = null;
+// Si llega un id_equipo por la URL lo guardamos, si no, lo dejamos en null
+$id_equipo = (isset($_GET['id_equipo']) && $_GET['id_equipo'] != '0') ? (int)$_GET['id_equipo'] : null;
 
 
 $tipo_evento = isset($_GET['evento']) ? $_GET['evento'] : 'LOGIN';
