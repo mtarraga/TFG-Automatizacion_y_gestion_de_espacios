@@ -20,8 +20,9 @@ switch ($accion) {
             echo json_encode(["status" => "error", "message" => "Faltan datos obligatorios"]); exit;
         }
         $pin_encriptado = hash('sha256', $pin_qsys);
-        $stmt = $conn->prepare("INSERT INTO usuarios (nombre_usuario, clave_hash, id_rol) VALUES (?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO usuario (nombre_usuario, clave_hash, id_rol) VALUES (?, ?, ?)");
         $stmt->bind_param("ssi", $nombre_qsys, $pin_encriptado, $rol_qsys);
+        $mensaje_exito = "¡Usuario '$nombre_qsys' creado correctamente!";
         break;
 
     case 'update':
@@ -29,20 +30,21 @@ switch ($accion) {
             echo json_encode(["status" => "error", "message" => "Faltan datos obligatorios"]); exit;
         }
         $pin_encriptado = hash('sha256', $pin_qsys);
-        $stmt = $conn->prepare("UPDATE usuarios SET clave_hash = ?, id_rol = ? WHERE nombre_usuario = ?");
+        $stmt = $conn->prepare("UPDATE usuario SET clave_hash = ?, id_rol = ? WHERE nombre_usuario = ?");
         $stmt->bind_param("sis", $pin_encriptado, $rol_qsys, $nombre_qsys);
+        $mensaje_exito = "¡Datos de '$nombre_qsys' actualizados!";
         break;
 
     case 'delete':
         if(empty($nombre_qsys)) {
             echo json_encode(["status" => "error", "message" => "Falta el nombre del usuario"]); exit;
         }
-        // Protección extra: No dejar que nadie borre al Admin original por accidente
         if(strtolower($nombre_qsys) === 'admin') {
             echo json_encode(["status" => "error", "message" => "No se puede borrar al administrador principal"]); exit;
         }
-        $stmt = $conn->prepare("DELETE FROM usuarios WHERE nombre_usuario = ?");
+        $stmt = $conn->prepare("DELETE FROM usuario WHERE nombre_usuario = ?");
         $stmt->bind_param("s", $nombre_qsys);
+        $mensaje_exito = "¡Usuario '$nombre_qsys' eliminado con éxito!";
         break;
 
     default:
@@ -51,8 +53,9 @@ switch ($accion) {
 }
 
 if ($stmt->execute()) {
+    // Si es creación, o si se ha afectado alguna fila (en update/delete)
     if ($accion == 'create' || $stmt->affected_rows > 0) {
-        echo json_encode(["status" => "success", "message" => "Operación completada con éxito"]);
+        echo json_encode(["status" => "success", "message" => $mensaje_exito]);
     } else {
         echo json_encode(["status" => "error", "message" => "Usuario no encontrado o sin cambios"]);
     }

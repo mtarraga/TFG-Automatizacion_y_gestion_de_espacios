@@ -22,18 +22,18 @@ if (isset($_GET['pin'])) {
     $pin_encriptado = hash('sha256', $pin_recibido);
 
     // Buscar
-    $sql = "SELECT id_usuario, nombre_usuario, id_rol FROM usuarios WHERE clave_hash = '$pin_encriptado'";
+    $sql = "SELECT id_usuario, nombre_usuario, id_rol FROM usuario WHERE clave_hash = '$pin_encriptado'";
     $result = $conn->query($sql);
 
     // Si coincide el hash
     if ($result->num_rows > 0) {
-        $usuario = $result->fetch_assoc();
+        $usuario_db = $result->fetch_assoc();
 
         echo json_encode([
             "status" => "success",
-            "id_usuario" => $usuario['id_usuario'], // Envia el ID exacto
-            "nombre" => $usuario['nombre_usuario'],
-            "rol_id" => $usuario['id_rol'] // Devuelve el ID del rol (1, 2 o 3)
+            "id_usuario" => $usuario_db['id_usuario'], // Envia el ID exacto
+            "nombre" => $usuario_db['nombre_usuario'],
+            "rol_id" => $usuario_db['id_rol'] // Devuelve el ID del rol (1, 2 o 3)
         ]);
     }
     else {

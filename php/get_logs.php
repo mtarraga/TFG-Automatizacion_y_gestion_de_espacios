@@ -13,8 +13,8 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Consulta la tabla logs_eventos descrita en tu memoria
-$sql = "SELECT id_log, fecha_hora, tipo_evento, accion_detalle, nivel_alerta FROM logs_eventos ORDER BY id_log DESC LIMIT 15";
+// Consulta la tabla log_evento descrita en tu memoria
+$sql = "SELECT id_log, fecha_hora, tipo_evento, accion_detalle, nivel_alerta FROM log_evento ORDER BY id_log DESC LIMIT 15";
 $result = $conn->query($sql);
 
 $logs = [];

@@ -8,7 +8,7 @@ if ($conn->connect_error) {
 }
 
 // Consultamos las reservas futuras o en curso
-$sql = "SELECT id_reserva, inicio_datetime, fin_datetime, descripcion FROM reservas ORDER BY inicio_datetime ASC LIMIT 5";
+$sql = "SELECT id_reserva, inicio_datetime, fin_datetime, descripcion FROM reserva ORDER BY inicio_datetime ASC LIMIT 5";
 $result = $conn->query($sql);
 
 $reservas = [];

@@ -27,7 +27,7 @@ $accion_detalle = isset($_GET['detalle']) ? $_GET['detalle'] : 'Acceso al sistem
 $nivel_alerta = isset($_GET['alerta']) ? (int)$_GET['alerta'] : 1;
 
 
-$sql = "INSERT INTO logs_eventos (id_usuario, id_equipo, tipo_evento, resultado, accion_detalle, nivel_alerta) 
+$sql = "INSERT INTO log_evento (id_usuario, id_equipo, tipo_evento, resultado, accion_detalle, nivel_alerta) 
         VALUES (?, ?, ?, ?, ?, ?)";
 
 

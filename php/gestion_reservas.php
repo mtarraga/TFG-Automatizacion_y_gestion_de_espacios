@@ -13,17 +13,16 @@ $inicio = $_GET['inicio'] ?? '';
 $fin = $_GET['fin'] ?? '';
 $desc = $_GET['desc'] ?? '';
 
-// 1. VALIDACIÓN DE SOLAPAMIENTO (Solo para crear y editar)
+// 1. VALIDACIÓN DE SOLAPAMIENTO
 if ($accion == 'create' || $accion == 'update') {
-    $sql_check = "SELECT id_reserva FROM reservas WHERE 
+    $sql_check = "SELECT id_reserva FROM reserva WHERE 
                   (('$inicio' < fin_datetime) AND ('$fin' > inicio_datetime))";
     
-    // Si estamos editando, ignoramos nuestra propia reserva actual
     if ($accion == 'update') { $sql_check .= " AND id_reserva != $id"; }
 
     $result = $conn->query($sql_check);
     if ($result && $result->num_rows > 0) {
-        echo json_encode(["status" => "error", "message" => "CONFLICTO: Ya hay una reserva en ese horario."]);
+        echo json_encode(["status" => "error", "message" => "ERROR: El horario ya está reservado."]);
         exit;
     }
 }
@@ -31,29 +30,22 @@ if ($accion == 'create' || $accion == 'update') {
 // 2. EJECUCIÓN DE ACCIONES
 switch ($accion) {
     case 'create':
-        // PASO PREVIO: Buscamos un ID de usuario válido antes de insertar
-        $res_user = $conn->query("SELECT id_usuario FROM usuarios LIMIT 1");
-        
-        if ($res_user && $res_user->num_rows > 0) {
-            $user_row = $res_user->fetch_assoc();
-            $id_admin = $user_row['id_usuario']; // Cogemos el ID del primer usuario que encontremos
-        } else {
-            // Si la tabla de usuarios está vacía, abortamos
-            echo json_encode(["status" => "error", "message" => "Error DB: No hay usuarios creados para asignar la reserva."]);
-            exit;
-        }
+        $res_user = $conn->query("SELECT id_usuario FROM usuario LIMIT 1");
+        $id_admin = ($res_user && $res_user->num_rows > 0) ? $res_user->fetch_assoc()['id_usuario'] : 1;
 
-        // Ahora sí, insertamos la reserva usando la variable de PHP $id_admin
-        $sql = "INSERT INTO reservas (id_usuario, inicio_datetime, fin_datetime, descripcion) 
+        $sql = "INSERT INTO reserva (id_usuario, inicio_datetime, fin_datetime, descripcion) 
                 VALUES ($id_admin, '$inicio', '$fin', '$desc')";
+        $mensaje_exito = "¡Reserva guardada correctamente!";
         break;
         
     case 'update':
-        $sql = "UPDATE reservas SET inicio_datetime='$inicio', fin_datetime='$fin', descripcion='$desc' WHERE id_reserva=$id";
+        $sql = "UPDATE reserva SET inicio_datetime='$inicio', fin_datetime='$fin', descripcion='$desc' WHERE id_reserva=$id";
+        $mensaje_exito = "¡Reserva modificada con éxito!";
         break;
         
     case 'delete':
-        $sql = "DELETE FROM reservas WHERE id_reserva=$id";
+        $sql = "DELETE FROM reserva WHERE id_reserva=$id";
+        $mensaje_exito = "¡Reserva eliminada!";
         break;
         
     default:
@@ -62,7 +54,7 @@ switch ($accion) {
 }
 
 if ($conn->query($sql)) {
-    echo json_encode(["status" => "success", "message" => "¡Operación completada!"]);
+    echo json_encode(["status" => "success", "message" => $mensaje_exito]);
 } else {
     echo json_encode(["status" => "error", "message" => "Error SQL: " . $conn->error]);
 }
